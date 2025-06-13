@@ -1,4 +1,4 @@
-import { createGameboard } from '../../logic/gameboard.js';
+import { createGameboard } from '../../logic/board.js';
 
 // gameboard.test.js
 
@@ -110,13 +110,3 @@ describe('gameboard module', () => {
     });
   });
 });
-
-describe('board module', () => {
-  beforeEach(() => {
-    let ship;
-  });
-
-  it('places ships', () => {
-    
-  });
-})

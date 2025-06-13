@@ -1,14 +1,17 @@
+/* eslint-disable no-plusplus */
+
+// logic/ship.js
+
 function createShip(length) {
   let hits = 0;
 
   return {
     getLength: () => length,
     hit: () => {
-      // eslint-disable-next-line no-plusplus
-      hits++;
+      if (hits < length) hits++;
     },
     isSunk: () => hits >= length,
   };
 }
 
-module.export = createShip();
+export default createShip;
