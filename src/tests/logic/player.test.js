@@ -1,4 +1,4 @@
-import { PlayerFactory } from '../logic/player.js';
+import { PlayerFactory } from '../../logic/player.js';
 
 const mockReceiveAttack = jest.fn();
 const mockGetAttackHistory = jest.fn(() => []);
@@ -23,15 +23,6 @@ describe('PlayerFactory.createPlayers', () => {
     expect(computer.gameboard).toBeDefined();
     expect(typeof human.submitAttack).toBe('function');
     expect(typeof computer.getNextMove).toBe('function');
-  });
-
-  test('throws error if trying to create more than two players', () => {
-    PlayerFactory.createPlayers({ gameboardFactory: createMockGameboard });
-    expect(() => {
-      PlayerFactory.createPlayers({ gameboardFactory: createMockGameboard });
-    }).toThrow(
-      'Only one human and one computer player can be created per session.'
-    );
   });
 
   test('assigns provided player names correctly', () => {

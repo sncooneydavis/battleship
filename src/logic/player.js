@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 /* eslint-disable import/prefer-default-export */
 // player.js
 
@@ -55,21 +56,12 @@ const createDefaultStrategy = (gameboard) => () => {
 
 // PlayerFactory (singleton prevention via closure)
 const PlayerFactory = (() => {
-  let created = false;
-
   return {
     createPlayers({
       humanName = 'Human',
       computerName = 'Computer',
       gameboardFactory,
     }) {
-      if (created) {
-        throw new Error(
-          'Only one human and one computer player can be created per session.'
-        );
-      }
-      created = true;
-
       const human = {
         ...createBasePlayer({
           id: uuidv4(),

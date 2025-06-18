@@ -1,6 +1,6 @@
 /* eslint-disable no-plusplus */
 
-import { createShip } from '../logic/ship.js';
+import createShip from '../../logic/ship.js';
 
 // SCS
 describe('createShip', () => {
