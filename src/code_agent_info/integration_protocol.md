@@ -1,5 +1,18 @@
 # Battleship Game Integration Protocol
 
+## Directory Layout
+
+ ├─ src/
+ │   ├─ game-board/
+ │   │   ├─ GameBoard.js           # Named exports: GameBoard class + helpers
+ │   │   ├─ index.js               # `export * from './GameBoard'`
+ │   │   └─ GameBoard.test.js
+ │   ├─ game-controller/
+ │   │   └─ …
+ │   └─ event-bus/
+ │       ├─ EventBus.js            # `export class EventBus` & `export const bus`
+ │       └─ index.js               # `export * from './EventBus'`
+
 ## Module Initialization Order
 
 ### Phase 1: Core Infrastructure
@@ -357,61 +370,4 @@ switchTurn(): void {
     this.turnNumber
   ));
 }
-```
-
-## Validation Results
-
-### ✅ All Interactions Implementable
-
-- Each interaction maps to a clear method chain
-- Event flow supports all UI feedback requirements
-- Error cases have defined handling paths
-
-### ✅ No Circular Dependencies
-
-- Dependency graph is acyclic (verified in module boundaries)
-- Event bus prevents direct circular references
-- Clear hierarchy: Controller → Domain → Data
-
-### ✅ Clear Error Boundaries
-
-- Domain layer: Throws for programming errors
-- Controller layer: Catches and converts to events
-- UI layer: Always recovers gracefully
-- Event handlers: Isolated error handling
-
-## Integration Testing Strategy
-
-```typescript
-// Integration test example
-describe('Ship Placement Integration', () => {
-  it('should handle complete placement flow', async () => {
-    const events: GameEvent[] = [];
-    eventBus.subscribe('*', (e) => events.push(e));
-    
-    // Simulate drag and drop
-    dragDropController.startDrag('carrier', { x: 0, y: 0 });
-    dragDropController.updateDragPosition({ x: 50, y: 50 });
-    const placement = dragDropController.completeDrop();
-    
-    // Trigger placement
-    gameController.handleShipPlacement(
-      placement.shipId,
-      placement.position.x,
-      placement.position.y,
-      placement.orientation
-    );
-    
-    // Verify event sequence
-    expect(events).toContainEqual(
-      expect.objectContaining({ type: 'DRAG_STARTED' })
-    );
-    expect(events).toContainEqual(
-      expect.objectContaining({ type: 'SHIP_PLACED' })
-    );
-    
-    // Verify final state
-    expect(playerFleet.getShipAt('2,2')).toBeDefined();
-  });
-});
 ```
