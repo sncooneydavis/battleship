@@ -20,7 +20,9 @@ describe('Ship.place', () => {
   test('Invalid \u2013 ship already placed', () => {
     const ship = new Ship('destroyer', 3);
     ship.place({ x: 2, y: 4 }, 'horizontal');
-    expect(() => ship.place({ x: 0, y: 0 }, 'vertical')).toThrow('SHIP_ALREADY_PLACED');
+    expect(() => ship.place({ x: 0, y: 0 }, 'vertical')).toThrow(
+      'SHIP_ALREADY_PLACED'
+    );
   });
 });
 
@@ -70,7 +72,9 @@ describe('Ship.recordHit', () => {
   test('Invalid \u2013 coordinate not on ship', () => {
     const ship = new Ship('submarine', 3);
     ship.place({ x: 3, y: 3 }, 'horizontal');
-    expect(() => ship.recordHit('9,9')).toThrow('coordinate is not part of this ship');
+    expect(() => ship.recordHit('9,9')).toThrow(
+      'coordinate is not part of this ship'
+    );
   });
 });
 
@@ -134,4 +138,3 @@ describe('Ship.reset', () => {
     expect(JSON.stringify(ship)).toBe(snapshot);
   });
 });
-

@@ -1,3 +1,5 @@
+/* eslint-disable import/prefer-default-export */
+/* eslint-disable class-methods-use-this */
 class Ship {
   constructor(id, length) {
     this.id = id;
@@ -32,7 +34,8 @@ class Ship {
 
   rotate = () => {
     if (!this.isPlaced) throw new Error('ship is not placed');
-    this.orientation = this.orientation === 'horizontal' ? 'vertical' : 'horizontal';
+    this.orientation =
+      this.orientation === 'horizontal' ? 'vertical' : 'horizontal';
     const { x, y } = this.position;
     this.occupiedCells = this.computeCells(x, y, this.orientation);
     return this.occupiedCells;

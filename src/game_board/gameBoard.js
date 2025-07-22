@@ -1,5 +1,7 @@
+/* eslint-disable import/prefer-default-export */
 class GameBoard {
   width = 10;
+
   height = 10;
 
   constructor() {
@@ -7,7 +9,8 @@ class GameBoard {
     this.guessHistory = new Set();
   }
 
-  withinBounds = (x, y) => x >= 0 && y >= 0 && x < this.width && y < this.height;
+  withinBounds = (x, y) =>
+    x >= 0 && y >= 0 && x < this.width && y < this.height;
 
   isValidPosition = (x, y, length, orientation) => {
     if (!this.withinBounds(x, y)) return false;
@@ -65,12 +68,13 @@ class GameBoard {
     return occupied ? 'occupied' : 'empty';
   };
 
-  markGuess = (coordinate, isHit) => {
+  markGuess = (coordinate) => {
     const [xs, ys] = coordinate.split(',');
     const x = Number(xs);
     const y = Number(ys);
     if (!this.withinBounds(x, y)) throw new Error('INVALID_COORDINATE');
-    if (this.guessHistory.has(coordinate)) throw new Error('CELL_ALREADY_GUESSED');
+    if (this.guessHistory.has(coordinate))
+      throw new Error('CELL_ALREADY_GUESSED');
     this.guessHistory.add(coordinate);
   };
 
