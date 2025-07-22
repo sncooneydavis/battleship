@@ -129,7 +129,7 @@ class Ship {
    */
   reset(): void
 }
-
+```
 
 ### Events Emitted
 
@@ -208,7 +208,7 @@ class Fleet {
    */
   reset(): void
 }
-
+```
 
 ### Events Emitted
 
@@ -282,7 +282,7 @@ class GameState {
    */
   reset(): void
 }
-
+```
 
 ### Events Emitted
 
