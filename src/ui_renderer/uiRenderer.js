@@ -4,7 +4,15 @@ class UIRenderer {
     this.eventBus = eventBus;
   }
 
-  renderBoard(board, showShips, elementId) {
+  renderShip(ship, container) {
+    const elem = document.createElement('div');
+    elem.className = 'ship';
+    elem.dataset.shipId = ship.id;
+    elem.dataset.orientation = ship.orientation;
+    container.appendChild(elem);
+  }
+
+  renderBoard(board, elementId) {
     const container = document.getElementById(elementId);
     container.innerHTML = '';
     for (let y = 0; y < board.height; y += 1) {
@@ -15,21 +23,13 @@ class UIRenderer {
         const coord = `${x},${y}`;
         cell.className = 'cell';
         cell.dataset.coordinate = coord;
-        if (showShips && board.shipPositions.has(coord)) {
+        if (board.shipPositions.has(coord)) {
           cell.classList.add('ship');
         }
         row.appendChild(cell);
       }
       container.appendChild(row);
     }
-  }
-
-  renderShip(ship, container) {
-    const elem = document.createElement('div');
-    elem.className = 'ship';
-    elem.dataset.shipId = ship.id;
-    elem.dataset.orientation = ship.orientation;
-    container.appendChild(elem);
   }
 
   showHit(coordinate, boardId) {
@@ -81,11 +81,6 @@ class UIRenderer {
   showEndgame(winner) {
     const messageEl = document.getElementById('message');
     if (messageEl) messageEl.textContent = `${winner} wins!`;
-    this.eventBus.emit({
-      type: 'AUDIO_FEEDBACK',
-      sound: 'VICTORY',
-      timestamp: Date.now(),
-    });
   }
 
   highlightCells(cells, valid) {

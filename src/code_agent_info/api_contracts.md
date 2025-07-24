@@ -397,7 +397,7 @@ class DragDropController {
    */
   isDragging(): boolean
 }
-
+```
 
 ### Events Emitted
 
@@ -573,7 +573,7 @@ class GameController {
    */
   getGameStatus(): GameStatus
 }
-
+```
 
 ### Events Emitted
 

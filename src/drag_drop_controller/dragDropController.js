@@ -1,25 +1,57 @@
+/* eslint-disable class-methods-use-this */
 /* eslint-disable import/prefer-default-export */
-import { EventEmitter } from 'node:events';
-
 class DragDropController {
-  constructor(emitter = new EventEmitter()) {
-    this.emitter = emitter;
+  constructor(eventBus) {
     this.dragState = null;
+    this.eventBus = eventBus;
+  }
+
+  addEventListeners() {
+    const ships = document.querySelectorAll('.player.ship');
+    const cells = document.querySelectorAll('.cell');
+
+    ships.forEach((ship) => {
+      ship.addEventListener('dragstart', (e) => {
+        this.startDrag(ship.id, { x: e.clientX, y: e.clientY });
+      });
+    });
+
+    cells.forEach((cell) => {
+      cell.addEventListener('dragover', (e) => {
+        e.preventDefault(); // Required to allow drop
+        cell.classList.add('dragging');
+      });
+
+      cell.addEventListener('dragleave', (e) => {
+        e.preventDefault(); // Required to allow drop
+        cell.classList.remove('dragging');
+      });
+
+      cell.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const shipId = e.dataTransfer.getData('text/plain');
+        const ship = document.getElementById(shipId);
+
+        // Prevent multiple ships in one cell
+        if (cell.children.length === 0) {
+          cell.appendChild(ship);
+        }
+      });
+    });
   }
 
   isDragging() {
-    return this.dragState !== null;
+    return this.dragState === true;
   }
 
   startDrag(shipId, mousePosition) {
-    if (this.isDragging()) throw new Error('INVALID_STATE');
     this.dragState = {
       shipId,
       ghostPosition: { x: mousePosition.x, y: mousePosition.y },
       validPlacement: false,
       affectedCells: [],
     };
-    this.emitter.emit('DRAG_STARTED', {
+    this.eventBus.emit('DRAG_STARTED', {
       type: 'DRAG_STARTED',
       shipId,
       startPosition: { x: mousePosition.x, y: mousePosition.y },
@@ -28,7 +60,6 @@ class DragDropController {
   }
 
   updateDragPosition(mousePosition, board) {
-    if (!this.isDragging()) throw new Error('INVALID_STATE');
     this.dragState.ghostPosition = { x: mousePosition.x, y: mousePosition.y };
 
     if (board && typeof board.isValidPosition === 'function') {
@@ -52,7 +83,7 @@ class DragDropController {
       this.dragState.affectedCells = [];
     }
 
-    this.emitter.emit('DRAG_UPDATED', {
+    this.eventBus.emit('DRAG_UPDATED', {
       type: 'DRAG_UPDATED',
       shipId: this.dragState.shipId,
       ghostPosition: this.dragState.ghostPosition,
@@ -62,13 +93,11 @@ class DragDropController {
   }
 
   canDropAt(x, y) {
-    if (!this.isDragging()) throw new Error('INVALID_STATE');
     const { ghostPosition, validPlacement } = this.dragState;
     return validPlacement && ghostPosition.x === x && ghostPosition.y === y;
   }
 
   completeDrop() {
-    if (!this.isDragging()) throw new Error('INVALID_STATE');
     if (!this.dragState.validPlacement) throw new Error('DROP_INVALID');
     const { shipId, ghostPosition } = this.dragState;
     this.dragState = null;
@@ -80,10 +109,9 @@ class DragDropController {
   }
 
   cancelDrag() {
-    if (!this.isDragging()) throw new Error('INVALID_STATE');
     const { shipId } = this.dragState;
     this.dragState = null;
-    this.emitter.emit('DRAG_CANCELLED', {
+    this.eventBus.emit('DRAG_CANCELLED', {
       type: 'DRAG_CANCELLED',
       shipId,
       timestamp: Date.now(),

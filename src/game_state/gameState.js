@@ -1,33 +1,17 @@
-import { EventEmitter } from 'node:events';
-
 class GameState {
-  constructor() {
+  constructor(eventBus) {
     this.phase = 'setup';
     this.currentTurn = null;
     this.winner = null;
     this.turnNumber = 0;
-    this.emitter = new EventEmitter();
-  }
-
-  on(event, handler) {
-    this.emitter.on(event, handler);
-  }
-
-  emit(event, payload) {
-    this.emitter.emit(event, payload);
-  }
-
-  canStartGame(playerFleetReady, computerFleetReady) {
-    if (this.phase !== 'setup') throw new Error('INVALID_PHASE');
-    return Boolean(playerFleetReady && computerFleetReady);
+    this.eventBus = eventBus;
   }
 
   startGame() {
-    if (this.phase !== 'setup') throw new Error('INVALID_PHASE');
     this.phase = 'gameplay';
     this.currentTurn = 'player';
     this.turnNumber = 1;
-    this.emit('GAME_STARTED', {
+    this.eventBus('GAME_STARTED', {
       firstPlayer: 'player',
       timestamp: Date.now(),
     });
@@ -39,7 +23,7 @@ class GameState {
     const previousPlayer = this.currentTurn;
     this.currentTurn = previousPlayer === 'player' ? 'computer' : 'player';
     this.turnNumber += 1;
-    this.emit('TURN_CHANGED', {
+    this.eventBus('TURN_CHANGED', {
       previousPlayer,
       nextPlayer: this.currentTurn,
       turnNumber: this.turnNumber,
@@ -55,7 +39,7 @@ class GameState {
     if (this.phase !== 'gameplay') throw new Error('INVALID_PHASE');
     this.phase = 'endgame';
     this.winner = winner;
-    this.emit('GAME_ENDED', {
+    this.eventBus('GAME_ENDED', {
       winner,
       timestamp: Date.now(),
     });
@@ -71,7 +55,7 @@ class GameState {
     this.currentTurn = null;
     this.winner = null;
     this.turnNumber = 0;
-    this.emit('GAME_RESET', {
+    this.eventBus('GAME_RESET', {
       previousPhase,
       timestamp: Date.now(),
     });

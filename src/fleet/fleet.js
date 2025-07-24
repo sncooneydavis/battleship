@@ -1,27 +1,18 @@
 /* eslint-disable no-restricted-syntax */
-import { EventEmitter } from 'node:events';
-import { GameBoard } from '../game_board/gameBoard.js';
 
 class Fleet {
-  constructor(
-    playerId,
-    board = new GameBoard(),
-    ships = {},
-    emitter = new EventEmitter()
-  ) {
+  constructor(playerId, board, ships, eventBus) {
     this.playerId = playerId;
     this.board = board;
     this.ships = ships; // object mapping shipId -> Ship
-    this.emitter = emitter;
+    this.eventBus = eventBus;
   }
 
   placeShip(shipId, x, y, orientation) {
     const ship = this.ships[shipId];
-    if (!ship) throw new Error('INVALID_SHIP_ID');
-    if (ship.isPlaced) throw new Error('SHIP_ALREADY_PLACED');
 
     if (!this.board.isValidPosition(x, y, ship.length, orientation)) {
-      this.emitter.emit('PLACEMENT_INVALID', {
+      this.eventBus.emit('PLACEMENT_INVALID', {
         type: 'PLACEMENT_INVALID',
         shipId,
         attemptedPosition: { x, y },
@@ -35,7 +26,7 @@ class Fleet {
     for (const cell of cells) {
       const occupant = this.board.shipPositions.get(cell);
       if (occupant) {
-        this.emitter.emit('PLACEMENT_INVALID', {
+        this.eventBus.emit('PLACEMENT_INVALID', {
           type: 'PLACEMENT_INVALID',
           shipId,
           attemptedPosition: { x, y },
@@ -48,7 +39,7 @@ class Fleet {
 
     this.board.markCellsOccupied(cells, shipId);
     ship.place({ x, y }, orientation);
-    this.emitter.emit('SHIP_PLACED', {
+    this.eventBus.emit('SHIP_PLACED', {
       type: 'SHIP_PLACED',
       shipId,
       position: { x, y },
@@ -56,6 +47,7 @@ class Fleet {
       affectedCells: cells,
       timestamp: Date.now(),
     });
+    return true;
   }
 
   rotateShip(shipId) {
@@ -95,7 +87,7 @@ class Fleet {
     const previousOrientation = ship.orientation;
     ship.rotate();
 
-    this.emitter.emit('SHIP_ROTATED', {
+    this.eventBus.emit('SHIP_ROTATED', {
       type: 'SHIP_ROTATED',
       shipId,
       previousOrientation,
@@ -108,10 +100,6 @@ class Fleet {
     });
 
     return newCells;
-  }
-
-  areAllShipsPlaced() {
-    return Object.values(this.ships).every((s) => s.isPlaced);
   }
 
   getShipAt(coordinate) {
