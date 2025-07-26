@@ -13,7 +13,7 @@ import { GameController } from './game_controller/gameController.js';
 // Phase 1: core infrastructure
 const eventBus = new EventBus();
 const playerBoard = new GameBoard();
-const computerBoard = new GameBoard();
+// const computerBoard = new GameBoard();
 const gameState = new GameState(eventBus);
 
 // Phase 2: domain layer
@@ -21,35 +21,37 @@ const createShips = () => ({
   carrier: new Ship('carrier', 5),
   battleship: new Ship('battleship', 4),
   destroyer: new Ship('destroyer', 3),
-  submarine: new Ship('submarine', 3),
-  patrol: new Ship('patrol', 2),
+  submarine: new Ship('submarine', 2),
+  patrol: new Ship('patrol', 1),
 });
 
 const playerFleet = new Fleet('player', playerBoard, createShips(), eventBus);
-const computerFleet = new Fleet(
-  'computer',
-  computerBoard,
-  createShips(),
-  eventBus
-);
-const aiStrategy = new AIStrategy();
+// const computerFleet = new Fleet(
+//   'computer',
+//   computerBoard,
+//   createShips(),
+//   eventBus
+// );
+// const aiStrategy = new AIStrategy();
 
 // Phase 3: UI layer
 const uiRenderer = new UIRenderer(eventBus);
-const dragDropController = new DragDropController(eventBus);
-dragDropController.addEventListeners();
+const playerDragDropController = new DragDropController(
+  playerBoard,
+  playerFleet,
+  eventBus
+);
 
 // Phase 4: controller layer
-const gameController = new GameController({
-  playerBoard,
-  computerBoard,
-  playerFleet,
-  computerFleet,
-  gameState,
-  aiStrategy,
-  uiRenderer,
-  dragDropController,
-  eventBus,
-});
+// const gameController = new GameController({
+//   playerBoard,
+//   computerBoard,
+//   playerFleet,
+//   gameState,
+//   uiRenderer,
+//   dragDropController,
+//   eventBus,
+// });
 
-gameController.initializeGame();
+uiRenderer.renderBoard(this.playerBoard, 'player-board');
+playerDragDropController.addEventListeners();

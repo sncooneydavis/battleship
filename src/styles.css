@@ -90,6 +90,7 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 10px;
 }
 
@@ -98,7 +99,6 @@ html, body {
   flex-direction: column;
   align-items: center;
 }
-
 
 h1 {
   color: aliceblue;
@@ -113,10 +113,9 @@ i {
   font-size: 2vh;
 }
 
-#button-holder {
+.button-holder {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  gap: 2vw;
 }
 
 button {
@@ -141,41 +140,43 @@ button {
   gap: 2px;
   background-color: rgba(33, 19, 140, 0.4);
   border-radius: 15px;
-  padding-left: 5vw;
-  padding-right: 5vw;
+  padding: 2vh 2vw;
+
 }
 
 .ship {
   place-self: center;
+  cursor: grab;
+  transition: left 0.2s ease, top 0.2s ease;
 }
 
-.ship.one {
+#patrol {
   height: 4vw;
   width: 4vw;
   grid-area: bottom-mid;
 }
 
-.ship.two {
+#submarine {
   height: 8vw;
   width: 4vw;
   grid-area: bottom-left;
 }
 
-.ship.three {
+#destroyer {
   height: 10vw;
   width: 5vw;
   grid-area: top-left;
 }
 
-.ship.four {
-  height: 13vw;
-  width: 6.5vw;
+#battleship {
+  height: 13.5vw;
+  width: 7vw;
   grid-area: top-mid;
 }
 
-.ship.five {
+#carrier {
   height: 17vw;
-  width: 5vw;
+  width: 15vw;
   grid-area: right;
 }
 

@@ -4,17 +4,9 @@ class UIRenderer {
     this.eventBus = eventBus;
   }
 
-  renderShip(ship, container) {
-    const elem = document.createElement('div');
-    elem.className = 'ship';
-    elem.dataset.shipId = ship.id;
-    elem.dataset.orientation = ship.orientation;
-    container.appendChild(elem);
-  }
-
   renderBoard(board, elementId) {
-    const container = document.getElementById(elementId);
-    container.innerHTML = '';
+    const container = document.createElement('div');
+    container.id = elementId;
     for (let y = 0; y < board.height; y += 1) {
       const row = document.createElement('div');
       row.className = 'row';
@@ -30,6 +22,8 @@ class UIRenderer {
       }
       container.appendChild(row);
     }
+    const mainContainer = document.getElementById('main-container');
+    mainContainer.appendChild(container);
   }
 
   showHit(coordinate, boardId) {

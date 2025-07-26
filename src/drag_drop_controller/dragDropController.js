@@ -1,121 +1,163 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable import/prefer-default-export */
 class DragDropController {
-  constructor(eventBus) {
+  constructor(board, fleet) {
+    this.board = board;
+    this.fleet = fleet;
+
     this.dragState = null;
-    this.eventBus = eventBus;
+    // shipElement,
+    // ship: this.fleet.ships[shipElement.id],
+    // cellSize,
+    // shipOffset: { x: clientOffset.x, y: clientOffset.y },
+    // isValidPosition: null or bool,
+    // coveredCellElements,
+
+    this.boardElement = document.getElementById('player-board');
   }
 
   addEventListeners() {
-    const ships = document.querySelectorAll('.player.ship');
-    const cells = document.querySelectorAll('.cell');
+    const ships = document.querySelectorAll('.ship');
 
-    ships.forEach((ship) => {
-      ship.addEventListener('dragstart', (e) => {
-        this.startDrag(ship.id, { x: e.clientX, y: e.clientY });
+    ships.forEach((shipElement) => {
+      shipElement.addEventListener('dragstart', (e) => {
+        const rect = shipElement.getBoundingClientRect();
+        const offsetX = e.clientX - rect.left;
+        const offsetY = e.clientY - rect.top;
+        this.startDrag(shipElement, { x: offsetX, y: offsetY });
       });
     });
 
-    cells.forEach((cell) => {
-      cell.addEventListener('dragover', (e) => {
-        e.preventDefault(); // Required to allow drop
-        cell.classList.add('dragging');
+    this.boardElement.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      this.dragState.ship.position = this.getCoordinatesOfCellOccupiedByMouse({
+        x: e.clientX,
+        y: e.clientY,
       });
-
-      cell.addEventListener('dragleave', (e) => {
-        e.preventDefault(); // Required to allow drop
-        cell.classList.remove('dragging');
-      });
-
-      cell.addEventListener('drop', (e) => {
-        e.preventDefault();
-        const shipId = e.dataTransfer.getData('text/plain');
-        const ship = document.getElementById(shipId);
-
-        // Prevent multiple ships in one cell
-        if (cell.children.length === 0) {
-          cell.appendChild(ship);
-        }
-      });
+      this.updateDragState();
     });
+
+    this.boardElement.addEventListener('dragleave', () => {
+      this.clearDragHighlights(this.dragState.coveredCellElements);
+    });
+
+    this.boardElement.addEventListener('drop', (e) => {
+      e.preventDefault();
+      if (this.dragState.isValidPosition) {
+        this.board.markCellsOccupied(
+          this.dragState.coveredCellElements,
+          this.dragState.ship.id
+        );
+
+        this.dragState.ship.cellsOccupied = this.dragState.coveredCellElements;
+        this.dragState.ship.isPlaced = true;
+        this.snapShipInPlace();
+        this.dragState = null;
+      } else if (this.dragState.ship.cellsOccupied) {
+        // put ship back in old position
+        this.snapShipInPlace();
+      } else {
+        // put ship back in dock
+        this.snapShipInDock(this.dragState.ship.id);
+      }
+    });
+    this.dragState = null;
   }
 
   isDragging() {
-    return this.dragState === true;
+    return this.dragState;
   }
 
-  startDrag(shipId, mousePosition) {
+  startDrag(shipElement, clientOffset) {
+    const cellSize = document.querySelector('.cell').offsetHeight;
     this.dragState = {
-      shipId,
-      ghostPosition: { x: mousePosition.x, y: mousePosition.y },
-      validPlacement: false,
-      affectedCells: [],
+      shipElement,
+      ship: this.fleet.ships[shipElement.id],
+      cellSize,
+      shipOffset: { x: clientOffset.x, y: clientOffset.y },
+      isValidPosition: false,
+      coveredCellElements: null,
     };
-    this.eventBus.emit('DRAG_STARTED', {
-      type: 'DRAG_STARTED',
-      shipId,
-      startPosition: { x: mousePosition.x, y: mousePosition.y },
-      timestamp: Date.now(),
-    });
   }
 
-  updateDragPosition(mousePosition, board) {
-    this.dragState.ghostPosition = { x: mousePosition.x, y: mousePosition.y };
+  getCoordinatesOfCellOccupiedByMouse(mousePosition) {
+    const rect = this.boardElement.getBoundingClientRect();
+    const topLeftX = Math.floor(
+      (mousePosition.x - rect.left - this.dragState.shipOffset.x) /
+        (this.dragState.cellSize + 4)
+    );
+    const topLeftY = Math.floor(
+      (mousePosition.y - rect.y - this.dragState.shipOffset.y) /
+        (this.dragState.cellSize + 4)
+    );
+    return { x: topLeftX, y: topLeftY };
+  }
 
-    if (board && typeof board.isValidPosition === 'function') {
-      // Use minimal check: treat ship as length 1 horizontal for preview validity
-      this.dragState.validPlacement = board.isValidPosition(
-        mousePosition.x,
-        mousePosition.y,
-        1,
-        'horizontal'
+  getAllCoveredCellElements() {
+    const cellCoordinates = this.board.getOccupiedCells(
+      this.dragState.ship.position.x,
+      this.dragState.ship.position.y,
+      this.dragState.ship.length,
+      this.dragState.ship.orientation
+    );
+
+    const occupiedElements = [];
+
+    cellCoordinates.forEach((coordinate) => {
+      occupiedElements.push(
+        document.querySelector(`[data-coordinate="${coordinate}"]`)
       );
-      this.dragState.affectedCells = this.dragState.validPlacement
-        ? board.getOccupiedCells(
-            mousePosition.x,
-            mousePosition.y,
-            1,
-            'horizontal'
-          )
-        : [];
+    });
+
+    return occupiedElements;
+  }
+
+  updateDragState() {
+    this.dragState.coveredCellElements = this.getAllCoveredCellElements();
+    if (
+      this.board.isValidPosition(
+        this.dragState.ship.position.x,
+        this.dragState.ship.position.y,
+        this.dragState.ship.length,
+        this.dragState.ship.orientation
+      )
+    ) {
+      this.dragState.coveredCellElements.forEach((element) => {
+        element.classList.add('good-drag');
+      });
+      this.dragState.isValidPosition = true;
     } else {
-      this.dragState.validPlacement = true;
-      this.dragState.affectedCells = [];
+      this.dragState.coveredCellElements.forEach((element) => {
+        element.classList.add('bad-drag');
+      });
+      this.dragState.isValidPosition = false;
     }
+  }
 
-    this.eventBus.emit('DRAG_UPDATED', {
-      type: 'DRAG_UPDATED',
-      shipId: this.dragState.shipId,
-      ghostPosition: this.dragState.ghostPosition,
-      valid: this.dragState.validPlacement,
-      timestamp: Date.now(),
+  clearDragHighlights(previouslyCoveredCells) {
+    previouslyCoveredCells.forEach((element) => {
+      element.classList.remove('good-drag');
+      element.classList.remove('bad-drag');
     });
+    this.dragState.coveredCellElements = null;
+    this.dragState.isValidPosition = false;
   }
 
-  canDropAt(x, y) {
-    const { ghostPosition, validPlacement } = this.dragState;
-    return validPlacement && ghostPosition.x === x && ghostPosition.y === y;
-  }
-
-  completeDrop() {
-    if (!this.dragState.validPlacement) throw new Error('DROP_INVALID');
-    const { shipId, ghostPosition } = this.dragState;
+  snapShipInPlace() {
+    // Snap ship to the top-left cell
+    const rect = this.boardElement.getBoundingClientRect();
+    const topLeftX = this.dragState.coveredCellElements[0].offsetLeft;
+    const topLeftY = this.dragState.coveredCellElements[0].offsetTop;
+    this.dragState.shipElement.style.position = 'absolute';
+    this.dragState.shipElement.style.left = `${topLeftX + rect.left}px`;
+    this.dragState.shipElement.style.top = `${topLeftY + rect.top}px`;
     this.dragState = null;
-    return {
-      shipId,
-      position: { ...ghostPosition },
-      orientation: 'horizontal',
-    };
   }
 
-  cancelDrag() {
-    const { shipId } = this.dragState;
-    this.dragState = null;
-    this.eventBus.emit('DRAG_CANCELLED', {
-      type: 'DRAG_CANCELLED',
-      shipId,
-      timestamp: Date.now(),
-    });
+  snapShipInDock(shipId) {
+    const img = document.getElementById(`${shipId}`);
+    const targetDiv = document.getElementById(`${shipId}-dock`);
+    targetDiv.appendChild(img);
   }
 }
 

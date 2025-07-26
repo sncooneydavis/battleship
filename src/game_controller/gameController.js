@@ -37,17 +37,14 @@ class GameController {
           );
         } catch (err) {
           // retry
-          console.log('bad');
         }
       }
     });
     // render boards
-    this.uiRenderer.renderBoard(this.playerBoard, 'player-board');
     this.uiRenderer.renderBoard(this.computerBoard, 'computer-board');
 
-    this.dragDropController.addEventListeners();
+    this.
 
-    this.gameState.startGame();
   }
 
   getRandomOrientation() {

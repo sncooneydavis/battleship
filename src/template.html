@@ -9,35 +9,37 @@
 	</head>
 	<body>
 		<img src="./assets/images/back.png" class="background" />
-		<div class="main section">
-			<div id="player-board" class="section board">
-
-			</div>
-			<div class="section">
-				<div id="entry-screen" class="">
-					<div id="text-div">
-						<h1>Battleship</h1>
-						<i>Drag ships to place</i>
-						<i>Click on placed ships to rotate</i>
+		<div id="main-container">
+			<div class="drag section">
+				<div id="text-div">
+					<i class="drag instructions">Drag ships to place</i>
+					<i class="rotate instructions hidden">Click on placed ships to rotate</i>
+				</div>				
+				<div id="dock">
+					<div id="destroyer-dock">
+						<img class="player ship" id="destroyer" src="./assets/images/3.png" draggable="true"/>
 					</div>
-					
-					<div id="dock">
-						
-						<img class="player ship three" id="ship-3" src="./assets/images/3.png" draggable="true"/>
-						<img class="player ship four" id="ship-4" src="./assets/images/4.png" draggable="true"/>
-						<img class="player ship five" id="ship-5" src="./assets/images/5.png" draggable="true"/>
-						<img class="player ship two" id="ship-2" src="./assets/images/2.png" draggable="true"/>
-						<img class="player ship one" id="ship-1" src="./assets/images/1.png" draggable="true"/>
-						
+					<div id="battleship-dock">
+						<img class="player ship" id="battleship" src="./assets/images/4.png" draggable="true"/>
 					</div>
-					<div id="button-holder">
-						<button>Play a Human</button>
-						<button>Play a Computer</button>
+					<div id="carrier-dock">
+						<img class="player ship" id="carrier" src="./assets/images/5.png" draggable="true"/>
 					</div>
-
+					<div id="submarine-dock">
+						<img class="player ship" id="submarine" src="./assets/images/2.png" draggable="true"/>
+					</div>
+					<div id="patrol-dock">
+						<img class="player ship" id="patrol" src="./assets/images/1.png" draggable="true"/>
+					</div>					
 				</div>
-				<div id="computer-board" class="board hidden">
-		
+				<div class="button-holder place">
+					<button>Randomize</button>
+					<button>Reset</button>
+				</div>
+				<div class="button-holder play hidden">
+					<button>Play a Human</button>
+					<button>Play a Computer</button>
+					<button class="hidden">Start Game</button>
 				</div>
 			</div>
 		</div>

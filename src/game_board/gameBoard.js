@@ -9,11 +9,11 @@ class GameBoard {
     this.guessHistory = new Set();
   }
 
-  withinBounds = (x, y) =>
+  #withinBounds = (x, y) =>
     x >= 0 && y >= 0 && x < this.width && y < this.height;
 
   isValidPosition = (x, y, length, orientation) => {
-    if (!this.withinBounds(x, y)) return false;
+    if (!this.#withinBounds(x, y)) return false;
     if (orientation === 'horizontal') {
       return x + length <= this.width;
     }
@@ -39,7 +39,7 @@ class GameBoard {
       const [xs, ys] = cell.split(',');
       const x = Number(xs);
       const y = Number(ys);
-      if (!this.withinBounds(x, y)) throw new Error('INVALID_COORDINATE');
+      if (!this.#withinBounds(x, y)) throw new Error('INVALID_COORDINATE');
       if (this.shipPositions.has(cell)) throw new Error('SHIP_OVERLAP');
     });
     cells.forEach((cell) => {
@@ -52,7 +52,7 @@ class GameBoard {
       const [xs, ys] = cell.split(',');
       const x = Number(xs);
       const y = Number(ys);
-      if (!this.withinBounds(x, y)) throw new Error('INVALID_COORDINATE');
+      if (!this.#withinBounds(x, y)) throw new Error('INVALID_COORDINATE');
       this.shipPositions.delete(cell);
     });
   };
@@ -61,7 +61,7 @@ class GameBoard {
     const [xs, ys] = coordinate.split(',');
     const x = Number(xs);
     const y = Number(ys);
-    if (!this.withinBounds(x, y)) throw new Error('INVALID_COORDINATE');
+    if (!this.#withinBounds(x, y)) throw new Error('INVALID_COORDINATE');
     const guessed = this.guessHistory.has(coordinate);
     const occupied = this.shipPositions.has(coordinate);
     if (guessed) return occupied ? 'hit' : 'miss';
@@ -72,7 +72,7 @@ class GameBoard {
     const [xs, ys] = coordinate.split(',');
     const x = Number(xs);
     const y = Number(ys);
-    if (!this.withinBounds(x, y)) throw new Error('INVALID_COORDINATE');
+    if (!this.#withinBounds(x, y)) throw new Error('INVALID_COORDINATE');
     if (this.guessHistory.has(coordinate))
       throw new Error('CELL_ALREADY_GUESSED');
     this.guessHistory.add(coordinate);
@@ -82,7 +82,7 @@ class GameBoard {
     const [xs, ys] = coordinate.split(',');
     const x = Number(xs);
     const y = Number(ys);
-    if (!this.withinBounds(x, y)) throw new Error('INVALID_COORDINATE');
+    if (!this.#withinBounds(x, y)) throw new Error('INVALID_COORDINATE');
     return this.guessHistory.has(coordinate);
   };
 
