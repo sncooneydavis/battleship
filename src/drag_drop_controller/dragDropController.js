@@ -15,6 +15,7 @@ class DragDropController {
 
     ships.forEach((shipElement) => {
       shipElement.addEventListener('dragstart', (e) => {
+        document.querySelector('.drag.instructions').classList.add('hidden');
         const rect = shipElement.getBoundingClientRect();
         const offsetX = e.clientX - rect.left;
         const offsetY = e.clientY - rect.top;
@@ -25,17 +26,14 @@ class DragDropController {
     cells.forEach((cell) => {
       cell.addEventListener('dragover', (e) => {
         e.preventDefault();
-        this.dragState.ship.position = this.getCoordinatesOfCellOccupiedByMouse(
-          {
-            x: e.clientX,
-            y: e.clientY,
-          }
-        );
-        this.updateDragState();
+        this.removeHighlights();
+        this.updateDragState(e);
       });
     });
+
     this.boardElement.addEventListener('drop', (e) => {
       e.preventDefault();
+      document.querySelector('.rotate.instructions').classList.remove('hidden');
       if (this.dragState.isValidPosition) {
         this.board.markCellsOccupied(
           this.board.getOccupiedCells(
@@ -50,11 +48,27 @@ class DragDropController {
       } else if (this.dragState.ship.cellsOccupied.length > 0) {
         // put ship back in old position
         this.snapShipInPlace();
+        this.removeHighlights();
       } else {
         // put ship back in dock
         this.snapShipInDock(this.dragState.ship.id);
+        this.removeHighlights();
       }
-      this.resetDragState();
+      this.removeHighlights();
+      this.dragState = null;
+    });
+
+    document.addEventListener('dragover', (e) => {
+      const boardRect = this.boardElement.getBoundingClientRect();
+      const isInsideBoard =
+        e.clientX >= boardRect.left &&
+        e.clientX <= boardRect.right &&
+        e.clientY >= boardRect.top &&
+        e.clientY <= boardRect.bottom;
+      if (!isInsideBoard) {
+        this.removeHighlights();
+      }
+      e.preventDefault();
     });
   }
 
@@ -67,10 +81,10 @@ class DragDropController {
       shipOffset: { x: clientOffset.x, y: clientOffset.y },
       isValidPosition: false,
       coveredCellElements: null,
+      previousCoveredCellElements: null,
     };
     this.dragState.ship.position = null;
     const cellsToUnmark = this.dragState.ship.cellsOccupied;
-    console.log(cellsToUnmark);
     if (cellsToUnmark.length > 0) {
       this.board.clearCells(cellsToUnmark);
     }
@@ -112,11 +126,21 @@ class DragDropController {
     return occupiedElements;
   }
 
-  updateDragState() {
-    const allCells = this.boardElement.querySelectorAll('.cell');
-    allCells.forEach((element) => {
-      element.classList.remove('good-drag');
-      element.classList.remove('bad-drag');
+  removeHighlights() {
+    const cellsToDim = this.dragState.coveredCellElements;
+    if (!cellsToDim) return;
+    cellsToDim.forEach((element) => {
+      if (element) {
+        element.classList.remove('good-drag');
+        element.classList.remove('bad-drag');
+      }
+    });
+  }
+
+  updateDragState(e) {
+    this.dragState.ship.position = this.getCoordinatesOfCellOccupiedByMouse({
+      x: e.clientX,
+      y: e.clientY,
     });
     this.dragState.coveredCellElements = this.getAllCoveredCellElements();
     if (

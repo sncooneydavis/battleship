@@ -228,13 +228,15 @@ button {
   padding: 0;
   overflow: hidden;
   position: relative;
-  border-radius: 5px;
+  gap: 3px;
+  
 }
 
 .row {
   display: flex;
   flex: 1;
   flex-direction: row;
+  gap: 3px;
 }
 
 .cell {
@@ -242,16 +244,14 @@ button {
   aspect-ratio: 1;
   background-color: rgba(33, 19, 140, 0.4);
   box-sizing: border-box; 
-  border: 3px solid transparent;
-  background-clip: padding-box;
 }
 
 
 
 .good-drag {
-  border: 2px solid green;
+  background-color: rgba(59, 171, 3, 0.405);
 }
 
 .bad-drag {
-  border: 2px solid red;
+  background-color: rgba(214, 2, 2, 0.367);
 }
