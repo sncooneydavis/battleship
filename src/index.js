@@ -26,8 +26,9 @@ const playerBoard = new GameBoard('player', createShips());
 window.addEventListener('DOMContentLoaded', () => {
   const uiRenderer = new UIRenderer();
   uiRenderer.renderBoard(playerBoard, 'player-board');
+
   const playerDragDropController = new DragDropController(playerBoard);
-  playerDragDropController.addEventListeners();
+  playerDragDropController.setUp();
 });
 
 // Phase 4: controller layer

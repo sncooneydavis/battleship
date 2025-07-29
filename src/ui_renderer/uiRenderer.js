@@ -77,22 +77,6 @@ class UIRenderer {
     const messageEl = document.getElementById('message');
     if (messageEl) messageEl.textContent = `${winner} wins!`;
   }
-
-  highlightCells(cells, valid) {
-    cells.forEach((c) => {
-      const cell = document.querySelector(`.cell[data-coordinate="${c}"]`);
-      if (cell)
-        cell.classList.add(valid ? 'highlight-valid' : 'highlight-invalid');
-    });
-  }
-
-  clearHighlights() {
-    document
-      .querySelectorAll('.highlight-valid, .highlight-invalid')
-      .forEach((el) => {
-        el.classList.remove('highlight-valid', 'highlight-invalid');
-      });
-  }
 }
 
 // eslint-disable-next-line import/prefer-default-export

@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable import/prefer-default-export */
 class DragDropController {
@@ -8,7 +9,7 @@ class DragDropController {
     this.boardElement = null;
   }
 
-  addEventListeners() {
+  setUp() {
     const ships = document.querySelectorAll('.ship');
     const cells = document.querySelectorAll('.cell');
     this.boardElement = document.querySelector('.board');
@@ -20,6 +21,20 @@ class DragDropController {
         const offsetX = e.clientX - rect.left;
         const offsetY = e.clientY - rect.top;
         this.startDrag(shipElement, { x: offsetX, y: offsetY });
+      });
+      shipElement.addEventListener('click', () => {
+        const ship = this.board.ships[shipElement.id];
+        if (ship.position) {
+          this.board.clearCells(ship.cellsOccupied);
+          ship.rotate();
+          this.board.markCellsOccupied(ship.cellsOccupied, ship.id);
+          if (ship.orientation === 'vertical') {
+            shipElement.style.transform = 'rotate(0deg) translate(0,0)';
+          } else {
+            const cellSize = document.querySelector('.cell').offsetHeight;
+            shipElement.style.transform = `rotate(-90deg) translate(-${cellSize}px, 0)`;
+          }
+        }
       });
     });
 
