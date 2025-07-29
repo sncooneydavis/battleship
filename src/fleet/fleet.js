@@ -136,38 +136,6 @@ class Fleet {
     return Object.values(this.ships).every((s) => s.isSunk);
   }
 
-  validatePlacement(shipId, x, y, orientation) {
-    const ship = this.ships[shipId];
-    if (!ship) throw new Error('INVALID_SHIP_ID');
-    const cells = this.board.getOccupiedCells(x, y, ship.length, orientation);
-    const isWithinBounds = this.board.isValidPosition(
-      x,
-      y,
-      ship.length,
-      orientation
-    );
-    const hasNoOverlap = cells.every((c) => !this.board.shipPositions.has(c));
-    const shipNotAlreadyPlaced = !ship.isPlaced;
-    const outOfBoundsCells = isWithinBounds
-      ? []
-      : cells.filter((c) => {
-          const [xs, ys] = c.split(',');
-          const cx = Number(xs);
-          const cy = Number(ys);
-          return !this.board.withinBounds(cx, cy);
-        });
-    const overlappingCells = cells.filter((c) =>
-      this.board.shipPositions.has(c)
-    );
-    return {
-      isWithinBounds,
-      hasNoOverlap,
-      shipNotAlreadyPlaced,
-      outOfBoundsCells,
-      overlappingCells,
-    };
-  }
-
   reset() {
     Object.values(this.ships).forEach((s) => s.reset());
     this.board.reset();

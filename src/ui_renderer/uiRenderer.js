@@ -7,6 +7,7 @@ class UIRenderer {
   renderBoard(board, elementId) {
     const container = document.createElement('div');
     container.id = elementId;
+    container.classList.add('board');
     for (let y = 0; y < board.height; y += 1) {
       const row = document.createElement('div');
       row.className = 'row';
@@ -23,7 +24,7 @@ class UIRenderer {
       container.appendChild(row);
     }
     const mainContainer = document.getElementById('main-container');
-    mainContainer.appendChild(container);
+    mainContainer.prepend(container);
   }
 
   showHit(coordinate, boardId) {

@@ -1,22 +1,15 @@
 import './styles.css';
 
-import { EventBus } from './eventBus.js';
 import { GameBoard } from './game_board/gameBoard.js';
 import { GameState } from './game_state/gameState.js';
-import { Fleet } from './fleet/fleet.js';
 import { Ship } from './ship/ship.js';
 import { AIStrategy } from './ai_strategy/aiStrategy.js';
 import { UIRenderer } from './ui_renderer/uiRenderer.js';
 import { DragDropController } from './drag_drop_controller/dragDropController.js';
 import { GameController } from './game_controller/gameController.js';
 
-// Phase 1: core infrastructure
-const eventBus = new EventBus();
-const playerBoard = new GameBoard();
 // const computerBoard = new GameBoard();
-const gameState = new GameState(eventBus);
 
-// Phase 2: domain layer
 const createShips = () => ({
   carrier: new Ship('carrier', 5),
   battleship: new Ship('battleship', 4),
@@ -25,22 +18,17 @@ const createShips = () => ({
   patrol: new Ship('patrol', 1),
 });
 
-const playerFleet = new Fleet('player', playerBoard, createShips(), eventBus);
-// const computerFleet = new Fleet(
-//   'computer',
-//   computerBoard,
-//   createShips(),
-//   eventBus
-// );
+const playerBoard = new GameBoard('player', createShips());
+
 // const aiStrategy = new AIStrategy();
 
 // Phase 3: UI layer
-const uiRenderer = new UIRenderer(eventBus);
-const playerDragDropController = new DragDropController(
-  playerBoard,
-  playerFleet,
-  eventBus
-);
+window.addEventListener('DOMContentLoaded', () => {
+  const uiRenderer = new UIRenderer();
+  uiRenderer.renderBoard(playerBoard, 'player-board');
+  const playerDragDropController = new DragDropController(playerBoard);
+  playerDragDropController.addEventListeners();
+});
 
 // Phase 4: controller layer
 // const gameController = new GameController({
@@ -53,5 +41,5 @@ const playerDragDropController = new DragDropController(
 //   eventBus,
 // });
 
-uiRenderer.renderBoard(this.playerBoard, 'player-board');
-playerDragDropController.addEventListeners();
+// get start game from event from event bus
+const gameState = new GameState();

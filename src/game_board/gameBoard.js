@@ -4,7 +4,9 @@ class GameBoard {
 
   height = 10;
 
-  constructor() {
+  constructor(id, ships) {
+    this.id = id;
+    this.ships = ships;
     this.shipPositions = new Map();
     this.guessHistory = new Set();
   }
@@ -12,25 +14,37 @@ class GameBoard {
   #withinBounds = (x, y) =>
     x >= 0 && y >= 0 && x < this.width && y < this.height;
 
-  isValidPosition = (x, y, length, orientation) => {
-    if (!this.#withinBounds(x, y)) return false;
-    if (orientation === 'horizontal') {
-      return x + length <= this.width;
+  isShipInBoundsAndNotOverlapping = (x, y, length, orientation) => {
+    const occupied = this.getOccupiedCells(x, y, length, orientation);
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const coord of occupied) {
+      const [cx, cy] = coord.split(',').map(Number);
+
+      if (!this.#withinBounds(cx, cy)) {
+        return false;
+      }
+
+      if (this.shipPositions.has(coord)) {
+        return false;
+      }
     }
-    if (orientation === 'vertical') {
-      return y + length <= this.height;
-    }
-    return false;
+
+    return true;
   };
 
+  // eslint-disable-next-line class-methods-use-this
   getOccupiedCells = (x, y, length, orientation) => {
-    if (!this.isValidPosition(x, y, length, orientation)) return [];
     const cells = [];
-    for (let i = 0; i < length; i += 1) {
+
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < length; i++) {
       const cx = orientation === 'horizontal' ? x + i : x;
       const cy = orientation === 'vertical' ? y + i : y;
+
       cells.push(`${cx},${cy}`);
     }
+
     return cells;
   };
 
@@ -40,11 +54,11 @@ class GameBoard {
       const x = Number(xs);
       const y = Number(ys);
       if (!this.#withinBounds(x, y)) throw new Error('INVALID_COORDINATE');
-      if (this.shipPositions.has(cell)) throw new Error('SHIP_OVERLAP');
     });
     cells.forEach((cell) => {
       this.shipPositions.set(cell, shipId);
     });
+    this.ships[shipId].place(cells[0], this.ships[shipId].orientation);
   };
 
   clearCells = (cells) => {
