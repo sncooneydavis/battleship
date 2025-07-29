@@ -16,10 +16,10 @@ class GameBoard {
 
   isShipInBoundsAndNotOverlapping = (x, y, length, orientation) => {
     const occupied = this.getOccupiedCells(x, y, length, orientation);
-
     // eslint-disable-next-line no-restricted-syntax
     for (const coord of occupied) {
       const [cx, cy] = coord.split(',').map(Number);
+      console.log('occupied', occupied)
 
       if (!this.#withinBounds(cx, cy)) {
         return false;
@@ -49,16 +49,19 @@ class GameBoard {
   };
 
   markCellsOccupied = (cells, shipId) => {
+    let isOkay = true;
     cells.forEach((cell) => {
       const [xs, ys] = cell.split(',');
       const x = Number(xs);
       const y = Number(ys);
-      if (!this.#withinBounds(x, y)) throw new Error('INVALID_COORDINATE');
+      if (!this.#withinBounds(x, y)) isOkay = false;
     });
-    cells.forEach((cell) => {
-      this.shipPositions.set(cell, shipId);
-    });
-    this.ships[shipId].place(cells[0], this.ships[shipId].orientation);
+    if (isOkay) {
+      cells.forEach((cell) => {
+        this.shipPositions.set(cell, shipId);
+      });
+      this.ships[shipId].place(cells[0], this.ships[shipId].orientation);
+    }
   };
 
   clearCells = (cells) => {

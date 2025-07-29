@@ -7,6 +7,7 @@ class DragDropController {
 
     this.dragState = null;
     this.boardElement = null;
+    this.suppressClick = true;
   }
 
   setUp() {
@@ -16,23 +17,45 @@ class DragDropController {
 
     ships.forEach((shipElement) => {
       shipElement.addEventListener('dragstart', (e) => {
+        this.suppressClick = true;
         document.querySelector('.drag.instructions').classList.add('hidden');
+
         const rect = shipElement.getBoundingClientRect();
         const offsetX = e.clientX - rect.left;
         const offsetY = e.clientY - rect.top;
         this.startDrag(shipElement, { x: offsetX, y: offsetY });
       });
+
       shipElement.addEventListener('click', () => {
+        if (this.suppressClick) {
+          return;
+        }
+
         const ship = this.board.ships[shipElement.id];
         if (ship.position) {
-          this.board.clearCells(ship.cellsOccupied);
-          ship.rotate();
-          this.board.markCellsOccupied(ship.cellsOccupied, ship.id);
+          let newOrientation;
           if (ship.orientation === 'vertical') {
-            shipElement.style.transform = 'rotate(0deg) translate(0,0)';
+            newOrientation = 'horizontal';
+          } else newOrientation = 'vertical';
+          const oldCells = ship.cellsOccupied;
+          this.board.clearCells(oldCells);
+          if (
+            this.board.isShipInBoundsAndNotOverlapping(
+              ship.position.x,
+              ship.position.y,
+              ship.length,
+              newOrientation
+            )
+          ) {
+            this.board.markCellsOccupied(ship.rotate(), ship.id);
+            if (ship.orientation === 'vertical') {
+              shipElement.style.transform = 'rotate(0deg) translate(0,0)';
+            } else {
+              const cellSize = document.querySelector('.cell').offsetHeight;
+              shipElement.style.transform = `rotate(-90deg) translate(-${cellSize}px, 0)`;
+            }
           } else {
-            const cellSize = document.querySelector('.cell').offsetHeight;
-            shipElement.style.transform = `rotate(-90deg) translate(-${cellSize}px, 0)`;
+            this.board.markCellsOccupied(oldCells, ship.id);
           }
         }
       });
@@ -48,6 +71,7 @@ class DragDropController {
 
     this.boardElement.addEventListener('drop', (e) => {
       e.preventDefault();
+      console.log('dragstate', this.dragState);
       document.querySelector('.rotate.instructions').classList.remove('hidden');
       if (this.dragState.isValidPosition) {
         this.board.markCellsOccupied(
@@ -63,14 +87,13 @@ class DragDropController {
       } else if (this.dragState.ship.cellsOccupied.length > 0) {
         // put ship back in old position
         this.snapShipInPlace();
-        this.removeHighlights();
       } else {
         // put ship back in dock
         this.snapShipInDock(this.dragState.ship.id);
-        this.removeHighlights();
       }
       this.removeHighlights();
       this.dragState = null;
+      this.suppressClick = false;
     });
 
     document.addEventListener('dragover', (e) => {
