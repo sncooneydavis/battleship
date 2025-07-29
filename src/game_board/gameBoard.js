@@ -19,7 +19,6 @@ class GameBoard {
     // eslint-disable-next-line no-restricted-syntax
     for (const coord of occupied) {
       const [cx, cy] = coord.split(',').map(Number);
-      console.log('occupied', occupied)
 
       if (!this.#withinBounds(cx, cy)) {
         return false;
@@ -106,6 +105,9 @@ class GameBoard {
   reset = () => {
     this.shipPositions = new Map();
     this.guessHistory = new Set();
+    Object.values(this.ships).forEach((ship) => {
+      ship.reset();
+    });
   };
 }
 

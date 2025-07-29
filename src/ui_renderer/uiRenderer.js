@@ -1,22 +1,38 @@
 /* eslint-disable class-methods-use-this */
 class UIRenderer {
-  constructor(eventBus) {
-    this.eventBus = eventBus;
+  constructor(board) {
+    this.board = board;
   }
 
-  renderBoard(board, elementId) {
+  setUp() {
+    this.renderBoard();
+    console.log('ok')
+    const resetButton = document.getElementById('reset');
+    resetButton.addEventListener('click', () => {
+      Object.values(this.board.ships).forEach((ship) => {
+        const shipElement = document.getElementById(ship.id);
+        shipElement.style.transform = 'rotate(0deg) translate(0,0)';
+        shipElement.style.top = '';
+        shipElement.style.left = '';
+      });
+      this.board.reset();
+    });
+  }
+
+  renderBoard() {
     const container = document.createElement('div');
-    container.id = elementId;
+    console.log(container)
+    container.id = this.board.id;
     container.classList.add('board');
-    for (let y = 0; y < board.height; y += 1) {
+    for (let y = 0; y < this.board.height; y += 1) {
       const row = document.createElement('div');
       row.className = 'row';
-      for (let x = 0; x < board.width; x += 1) {
+      for (let x = 0; x < this.board.width; x += 1) {
         const cell = document.createElement('div');
         const coord = `${x},${y}`;
         cell.className = 'cell';
         cell.dataset.coordinate = coord;
-        if (board.shipPositions.has(coord)) {
+        if (this.board.shipPositions.has(coord)) {
           cell.classList.add('ship');
         }
         row.appendChild(cell);

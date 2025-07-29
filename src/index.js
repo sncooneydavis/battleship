@@ -18,14 +18,14 @@ const createShips = () => ({
   patrol: new Ship('patrol', 1),
 });
 
-const playerBoard = new GameBoard('player', createShips());
+const playerBoard = new GameBoard('player-board', createShips());
 
 // const aiStrategy = new AIStrategy();
 
 // Phase 3: UI layer
 window.addEventListener('DOMContentLoaded', () => {
-  const uiRenderer = new UIRenderer();
-  uiRenderer.renderBoard(playerBoard, 'player-board');
+  const uiRenderer = new UIRenderer(playerBoard);
+  uiRenderer.setUp();
 
   const playerDragDropController = new DragDropController(playerBoard);
   playerDragDropController.setUp();

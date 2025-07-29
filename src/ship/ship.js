@@ -51,7 +51,7 @@ class Ship {
 
   reset = () => {
     this.position = null;
-    this.orientation = null;
+    this.orientation = 'vertical';
     this.cellsOccupied = [];
     this.hitCells = new Set();
     this.isSunk = false;

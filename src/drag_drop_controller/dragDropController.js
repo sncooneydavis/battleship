@@ -26,37 +26,15 @@ class DragDropController {
         this.startDrag(shipElement, { x: offsetX, y: offsetY });
       });
 
+      // click to rotate if ship is placed on the board
+      // and if ship's rotation will not place it off the board
       shipElement.addEventListener('click', () => {
         if (this.suppressClick) {
           return;
         }
-
         const ship = this.board.ships[shipElement.id];
         if (ship.position) {
-          let newOrientation;
-          if (ship.orientation === 'vertical') {
-            newOrientation = 'horizontal';
-          } else newOrientation = 'vertical';
-          const oldCells = ship.cellsOccupied;
-          this.board.clearCells(oldCells);
-          if (
-            this.board.isShipInBoundsAndNotOverlapping(
-              ship.position.x,
-              ship.position.y,
-              ship.length,
-              newOrientation
-            )
-          ) {
-            this.board.markCellsOccupied(ship.rotate(), ship.id);
-            if (ship.orientation === 'vertical') {
-              shipElement.style.transform = 'rotate(0deg) translate(0,0)';
-            } else {
-              const cellSize = document.querySelector('.cell').offsetHeight;
-              shipElement.style.transform = `rotate(-90deg) translate(-${cellSize}px, 0)`;
-            }
-          } else {
-            this.board.markCellsOccupied(oldCells, ship.id);
-          }
+          this.rotateShip(shipElement, ship);
         }
       });
     });
@@ -71,7 +49,6 @@ class DragDropController {
 
     this.boardElement.addEventListener('drop', (e) => {
       e.preventDefault();
-      console.log('dragstate', this.dragState);
       document.querySelector('.rotate.instructions').classList.remove('hidden');
       if (this.dragState.isValidPosition) {
         this.board.markCellsOccupied(
@@ -87,9 +64,6 @@ class DragDropController {
       } else if (this.dragState.ship.cellsOccupied.length > 0) {
         // put ship back in old position
         this.snapShipInPlace();
-      } else {
-        // put ship back in dock
-        this.snapShipInDock(this.dragState.ship.id);
       }
       this.removeHighlights();
       this.dragState = null;
@@ -205,15 +179,6 @@ class DragDropController {
     }
   }
 
-  resetDragState() {
-    const allCells = this.boardElement.querySelectorAll('.cell');
-    allCells.forEach((element) => {
-      element.classList.remove('good-drag');
-      element.classList.remove('bad-drag');
-    });
-    this.dragState = null;
-  }
-
   snapShipInPlace() {
     // Snap ship to the top-left cell
     const rect = this.boardElement.getBoundingClientRect();
@@ -224,10 +189,31 @@ class DragDropController {
     this.dragState.shipElement.style.top = `${topLeftY + rect.top}px`;
   }
 
-  snapShipInDock(shipId) {
-    const img = document.getElementById(`${shipId}`);
-    const targetDiv = document.getElementById(`${shipId}-dock`);
-    targetDiv.appendChild(img);
+  rotateShip(shipElement, ship) {
+    let newOrientation;
+    if (ship.orientation === 'vertical') {
+      newOrientation = 'horizontal';
+    } else newOrientation = 'vertical';
+    const oldCells = ship.cellsOccupied;
+    this.board.clearCells(oldCells);
+    if (
+      this.board.isShipInBoundsAndNotOverlapping(
+        ship.position.x,
+        ship.position.y,
+        ship.length,
+        newOrientation
+      )
+    ) {
+      this.board.markCellsOccupied(ship.rotate(), ship.id);
+      if (ship.orientation === 'vertical') {
+        shipElement.style.transform = 'rotate(0deg) translate(0,0)';
+      } else {
+        const cellSize = document.querySelector('.cell').offsetHeight;
+        shipElement.style.transform = `rotate(-90deg) translate(-${cellSize}px, 0)`;
+      }
+    } else {
+      this.board.markCellsOccupied(oldCells, ship.id);
+    }
   }
 }
 
