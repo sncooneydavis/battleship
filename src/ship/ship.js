@@ -22,9 +22,10 @@ class Ship {
   };
 
   place = (pos, orientation) => {
-    this.position = { x: pos.x, y: pos.y };
+    const [x, y] = pos.split(',').map(Number);
+    this.position = { x, y };
     this.orientation = orientation;
-    this.cellsOccupied = this.computeCells(pos.x, pos.y, orientation);
+    this.cellsOccupied = this.computeCells(x, y, orientation);
   };
 
   rotate = () => {

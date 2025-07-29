@@ -31,17 +31,12 @@ class DragDropController {
             y: e.clientY,
           }
         );
-        console.log(this.dragState.ship.position);
         this.updateDragState();
       });
     });
     this.boardElement.addEventListener('drop', (e) => {
       e.preventDefault();
       if (this.dragState.isValidPosition) {
-        const cellsToUnmark = this.dragState.ship.cellsOccupied;
-        if (cellsToUnmark.length > 0) {
-          this.board.clearCells(cellsToUnmark);
-        }
         this.board.markCellsOccupied(
           this.board.getOccupiedCells(
             this.dragState.ship.position.x,
@@ -51,9 +46,6 @@ class DragDropController {
           ),
           this.dragState.ship.id
         );
-        this.dragState.ship.cellsOccupied =
-          this.dragState.coveredCellElements;
-        this.dragState.ship.isPlaced = true;
         this.snapShipInPlace();
       } else if (this.dragState.ship.cellsOccupied.length > 0) {
         // put ship back in old position
@@ -76,6 +68,13 @@ class DragDropController {
       isValidPosition: false,
       coveredCellElements: null,
     };
+    this.dragState.ship.position = null;
+    const cellsToUnmark = this.dragState.ship.cellsOccupied;
+    console.log(cellsToUnmark);
+    if (cellsToUnmark.length > 0) {
+      this.board.clearCells(cellsToUnmark);
+    }
+    this.dragState.ship.cellsOccupied = [];
   }
 
   getCoordinatesOfCellOccupiedByMouse(mousePosition) {
