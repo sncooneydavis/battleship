@@ -6,7 +6,6 @@ class UIRenderer {
 
   setUp() {
     this.renderBoard();
-    console.log('ok')
     const resetButton = document.getElementById('reset');
     resetButton.addEventListener('click', () => {
       Object.values(this.board.ships).forEach((ship) => {
@@ -17,11 +16,29 @@ class UIRenderer {
       });
       this.board.reset();
     });
+
+    const randomizeButton = document.getElementById('randomize');
+    randomizeButton.addEventListener('click', () => {
+      Object.values(this.board.ships).forEach((ship) => {
+        let placed = false;
+        while (!placed) {
+          try {
+            placed = this.board.ships.place(
+              ship.id,
+              this.getRandomX(),
+              this.getRandomY(),
+              this.getRandomOrientation()
+            );
+          } catch (err) {
+            // retry
+          }
+        }
+      });
+    });
   }
 
   renderBoard() {
     const container = document.createElement('div');
-    console.log(container)
     container.id = this.board.id;
     container.classList.add('board');
     for (let y = 0; y < this.board.height; y += 1) {

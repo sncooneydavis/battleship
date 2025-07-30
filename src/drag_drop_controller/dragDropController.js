@@ -61,16 +61,14 @@ class DragDropController {
           this.dragState.ship.id
         );
         this.snapShipInPlace();
-      } else if (this.dragState.ship.cellsOccupied.length > 0) {
-        // put ship back in old position
-        this.snapShipInPlace();
       }
-      this.removeHighlights();
       this.dragState = null;
+      this.removeAllHighlights();
       this.suppressClick = false;
     });
 
     document.addEventListener('dragover', (e) => {
+      e.preventDefault();
       const boardRect = this.boardElement.getBoundingClientRect();
       const isInsideBoard =
         e.clientX >= boardRect.left &&
@@ -78,9 +76,9 @@ class DragDropController {
         e.clientY >= boardRect.top &&
         e.clientY <= boardRect.bottom;
       if (!isInsideBoard) {
-        this.removeHighlights();
+        this.removeAllHighlights();
       }
-      e.preventDefault();
+      
     });
   }
 
@@ -93,7 +91,6 @@ class DragDropController {
       shipOffset: { x: clientOffset.x, y: clientOffset.y },
       isValidPosition: false,
       coveredCellElements: null,
-      previousCoveredCellElements: null,
     };
     this.dragState.ship.position = null;
     const cellsToUnmark = this.dragState.ship.cellsOccupied;
@@ -139,12 +136,26 @@ class DragDropController {
   }
 
   removeHighlights() {
-    const cellsToDim = this.dragState.coveredCellElements;
-    if (!cellsToDim) return;
-    cellsToDim.forEach((element) => {
-      if (element) {
-        element.classList.remove('good-drag');
-        element.classList.remove('bad-drag');
+    console.log(this.dragState)
+    if (!this.dragState || !this.dragState.coveredCellElements) return;
+
+    if (this.dragState.coveredCellElements) {
+      this.dragState.coveredCellElements.forEach((element) => {
+        if (element) {
+          element.classList.remove('good-drag');
+          element.classList.remove('bad-drag');
+        }
+      });
+    }
+  }
+
+  removeAllHighlights() {
+    const allCells = document.querySelectorAll('.cell');
+    if (!allCells) return;
+    allCells.forEach((cell) => {
+      if (cell) {
+        cell.classList.remove('good-drag');
+        cell.classList.remove('bad-drag');
       }
     });
   }

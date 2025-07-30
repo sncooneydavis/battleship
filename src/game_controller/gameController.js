@@ -40,8 +40,6 @@ class GameController {
         }
       }
     });
-    // render boards
-    this.uiRenderer.renderBoard(this.computerBoard, 'computer-board');
   }
 
   getRandomOrientation() {

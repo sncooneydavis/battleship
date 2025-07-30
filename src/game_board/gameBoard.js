@@ -48,28 +48,27 @@ class GameBoard {
   };
 
   markCellsOccupied = (cells, shipId) => {
-    let isOkay = true;
+    // eslint-disable-next-line consistent-return
     cells.forEach((cell) => {
       const [xs, ys] = cell.split(',');
       const x = Number(xs);
       const y = Number(ys);
-      if (!this.#withinBounds(x, y)) isOkay = false;
+      if (!this.#withinBounds(x, y)) return false;
     });
-    if (isOkay) {
-      cells.forEach((cell) => {
-        this.shipPositions.set(cell, shipId);
-      });
-      this.ships[shipId].place(cells[0], this.ships[shipId].orientation);
-    }
+    cells.forEach((cell) => {
+      this.shipPositions.set(cell, shipId);
+    });
+    this.ships[shipId].place(cells[0], this.ships[shipId].orientation);
+    return true;
   };
 
-  clearCells = (cells) => {
+  clearCells = (cells, shipId) => {
     cells.forEach((cell) => {
       const [xs, ys] = cell.split(',');
       const x = Number(xs);
       const y = Number(ys);
       if (!this.#withinBounds(x, y)) throw new Error('INVALID_COORDINATE');
-      this.shipPositions.delete(cell);
+      this.shipPositions.delete(cell, shipId);
     });
   };
 
