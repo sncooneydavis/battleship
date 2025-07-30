@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
 class UIRenderer {
   constructor(board) {
@@ -8,29 +9,38 @@ class UIRenderer {
     this.renderBoard();
     const resetButton = document.getElementById('reset');
     resetButton.addEventListener('click', () => {
-      Object.values(this.board.ships).forEach((ship) => {
-        const shipElement = document.getElementById(ship.id);
-        shipElement.style.transform = 'rotate(0deg) translate(0,0)';
-        shipElement.style.top = '';
-        shipElement.style.left = '';
-      });
-      this.board.reset();
+      this.reset();
     });
 
     const randomizeButton = document.getElementById('randomize');
     randomizeButton.addEventListener('click', () => {
+      this.reset();
       Object.values(this.board.ships).forEach((ship) => {
         let placed = false;
+        let x;
+        let y;
+        let orient;
         while (!placed) {
-          try {
-            placed = this.board.ships.place(
-              ship.id,
-              this.getRandomX(),
-              this.getRandomY(),
-              this.getRandomOrientation()
+          x = this.board.getRandomX();
+          y = this.board.getRandomY();
+          orient = this.board.getRandomOrientation();
+          const canOccupy = this.board.isShipInBoundsAndNotOverlapping(
+            x,
+            y,
+            ship.length,
+            orient
+          );
+          if (canOccupy) {
+            console.log('shipid', ship.id);
+            console.log('x,y', { x, y });
+            ship.orientation = orient;
+            this.board.markCellsOccupied(canOccupy, ship.id);
+            this.setRandomPlacement(
+              document.getElementById(`${ship.id}`),
+              document.querySelector(`[data-coordinate="${x},${y}"]`),
+              orient
             );
-          } catch (err) {
-            // retry
+            placed = true;
           }
         }
       });
@@ -58,6 +68,32 @@ class UIRenderer {
     }
     const mainContainer = document.getElementById('main-container');
     mainContainer.prepend(container);
+  }
+
+  reset() {
+    Object.values(this.board.ships).forEach((ship) => {
+      const shipElement = document.getElementById(ship.id);
+      shipElement.style.transform = 'rotate(0deg) translate(0,0)';
+      shipElement.style.top = '';
+      shipElement.style.left = '';
+    });
+    this.board.reset();
+  }
+
+  setRandomPlacement(shipElement, cellElement, orientation) {
+    const boardRect = document.querySelector('.board').getBoundingClientRect();
+    const cellX = cellElement.offsetLeft;
+    const cellY = cellElement.offsetTop;
+
+    const cellRect = cellElement.getBoundingClientRect();
+
+    shipElement.style.position = 'absolute';
+    shipElement.style.left = `${cellX + boardRect.left}px`;
+    shipElement.style.top = `${cellY + boardRect.top}px`;
+
+    if (orientation === 'horizontal') {
+      shipElement.style.transform = `rotate(-90deg) translate(-${cellRect.height}px, 0)`;
+    }
   }
 
   showHit(coordinate, boardId) {
@@ -92,11 +128,6 @@ class UIRenderer {
       });
       resolve();
     });
-  }
-
-  updateMessage({ text }) {
-    const messageEl = document.getElementById('message');
-    if (messageEl) messageEl.textContent = text;
   }
 
   toggleSetupUI(visible) {

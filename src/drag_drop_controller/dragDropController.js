@@ -78,7 +78,6 @@ class DragDropController {
       if (!isInsideBoard) {
         this.removeAllHighlights();
       }
-      
     });
   }
 
@@ -136,7 +135,6 @@ class DragDropController {
   }
 
   removeHighlights() {
-    console.log(this.dragState)
     if (!this.dragState || !this.dragState.coveredCellElements) return;
 
     if (this.dragState.coveredCellElements) {

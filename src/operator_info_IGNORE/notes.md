@@ -14,6 +14,8 @@
 - No HTML generated; user-initialized DOM events not taken into account
 - Some overlapping functionality (to be expected)
 - Some functionality and variables unused -- artifact of over-engineered arch procedure
+- Ship placement/board setup phase not distinguished. Modules contain a mix of gameplay and setup
+- Delineation between model, view, and controller inconsistent
 
 #### GameController
 

@@ -42,22 +42,6 @@ class GameController {
     });
   }
 
-  getRandomOrientation() {
-    return Math.random() >= 0.5 ? 'horizontal' : 'vertical';
-  }
-
-  getRandomX() {
-    return Math.floor(Math.random() * this.playerBoard.width) + 1;
-  }
-
-  getRandomY() {
-    return Math.floor(Math.random() * this.playerBoard.height) + 1;
-  }
-
-  handleShipRotation(shipId) {
-    this.playerFleet.rotateShip(shipId);
-  }
-
   handlePlayerGuess(x, y) {
     const coord = `${x},${y}`;
     if (!this.gameState.isPlayerTurn()) {

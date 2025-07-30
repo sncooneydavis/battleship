@@ -29,7 +29,7 @@ class GameBoard {
       }
     }
 
-    return true;
+    return occupied;
   };
 
   // eslint-disable-next-line class-methods-use-this
@@ -108,6 +108,19 @@ class GameBoard {
       ship.reset();
     });
   };
+
+  // eslint-disable-next-line class-methods-use-this
+  getRandomOrientation() {
+    return Math.random() >= 0.5 ? 'horizontal' : 'vertical';
+  }
+
+  getRandomX() {
+    return Math.floor(Math.random() * this.width) + 1;
+  }
+
+  getRandomY() {
+    return Math.floor(Math.random() * this.height) + 1;
+  }
 }
 
 export { GameBoard };
