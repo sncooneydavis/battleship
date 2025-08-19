@@ -1,10 +1,10 @@
-const path = require('path');
+/* eslint-disable import/no-extraneous-dependencies */
 const { merge } = require('webpack-merge');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const common = require('./webpack.common.cjs');
 
-export default merge(common, {
+module.exports = merge(common, {
   mode: 'production',
   devtool: 'source-map',
   plugins: [
