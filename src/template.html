@@ -9,39 +9,54 @@
 	</head>
 	<body>
 		<img src="./assets/images/back.png" class="background" />
-		<div id="main-container">
-			<div class="drag section">
-				<div id="text-div">
-					<i class="drag instructions">Drag and drop ships to place</i>
-					<i class="rotate instructions hidden">Click on placed ships to rotate</i>
-				</div>				
-				<div id="dock">
-					<div id="destroyer-dock">
-						<img class="player ship" id="destroyer" src="./assets/images/3.png" draggable="true"/>						
-					</div>
-					<div id="battleship-dock">
-						<img class="player ship" id="battleship" src="./assets/images/4.png" draggable="true"/>
-					</div>
-					<div id="carrier-dock">
-						<img class="player ship" id="carrier" src="./assets/images/5.png" draggable="true"/>
-					</div>
-					<div id="submarine-dock">
-						<img class="player ship" id="submarine" src="./assets/images/2.png" draggable="true"/>
-					</div>
-					<div id="patrol-dock">
-						<img class="player ship" id="patrol" src="./assets/images/1.png" draggable="true"/>
-					</div>					
-				</div>
-				<div class="button-holder place">
-					<button id="randomize">Randomize</button>
-					<button id="reset">Reset</button>
-				</div>
-				<div class="button-holder play hidden">
-					<button>Play a Human</button>
-					<button>Play a Computer</button>
-					<button class="hidden">Start Game</button>
-				</div>
-			</div>
-		</div>
 	</body>
 </html>
+
+<template id="body">
+	<div id="main-container">
+		<div class="drag section">
+			<div id="text-div">
+				<i class="drag instructions">Drag and drop ships to place</i>
+				<i class="rotate instructions hidden">Click on placed ships to rotate counterclockwise</i>
+			</div>				
+			<div id="dock">
+				<div id="destroyer-dock">
+					<img class="player ship" data-ship="destroyer" src="./assets/images/3.png" draggable="true"/>
+					<img class="opponent ship hidden" data-ship="destroyer" src="./assets/images/3.png" draggable="true"/>						
+				</div>
+				<div id="battleship-dock">
+					<img class="player ship" data-ship="battleship" src="./assets/images/4.png" draggable="true"/>
+					<img class="opponent ship hidden" data-ship="battleship" src="./assets/images/4.png" draggable="true"/>
+				</div>
+				<div id="carrier-dock">
+					<img class="player ship" data-ship="carrier" src="./assets/images/5.png" draggable="true"/>
+					<img class="opponent ship hidden" data-ship="carrier" src="./assets/images/5.png" draggable="true"/>
+				</div>
+				<div id="submarine-dock">
+					<img class="player ship" data-ship="submarine" src="./assets/images/2.png" draggable="true"/>
+					<img class="opponent ship hidden" data-ship="submarine" src="./assets/images/2.png" draggable="true"/>
+				</div>
+				<div id="patrol-dock">
+					<img class="player ship" data-ship="patrol" src="./assets/images/1.png" draggable="true"/>
+					<img class="opponent ship hidden" data-ship="patrol" src="./assets/images/1.png" draggable="true"/>
+				</div>					
+			</div>
+			<div class="button-holder place">
+				<button id="randomize">Randomize</button>
+				<button id="reset">Reset</button>
+			</div>
+			<div class="button-holder play hidden">
+				<!-- <button id="opponent-player hidden">Play a Human</button> -->
+				<button id="opponent-computer">Play a Computer</button>				
+			</div>
+			<button class="start-game hidden">Start Game</button>
+		</div>		
+	</div>
+	<div class="button-holder">
+		<div id="player-wins" class="hidden">You Win!</div>
+		<div id="computer-wins" class="hidden">You Lose!</div>
+		<div id="player-1-wins" class="hidden">Player 1 Wins!</div>
+		<div id="player-2-wins" class="hidden">Player 2 Wins!</div>
+		<button id="play-again" class="hidden">Play Again</button>
+	</div>
+</template>

@@ -177,13 +177,14 @@ button {
   cursor: grab;
   transition: transform 0.3s ease-in-out;
   transform-origin: top left;
+  z-index: 2;
 
 }
 
 #patrol-dock {
   grid-area: bottom-mid;
 }
-#patrol {
+[data-ship="patrol"] {
   height: 3vw;
   width: 3.25vw;
 }
@@ -192,7 +193,7 @@ button {
   grid-area: bottom-left;
 }
 
-#submarine {
+[data-ship="submarine"] {
   height: 6vw;
   width: 3.25vw;
 }
@@ -201,7 +202,7 @@ button {
   grid-area: top-left;
 }
 
-#destroyer {
+[data-ship="destroyer"] {
   height: 9vw;
   width: 3.25vw;
 }
@@ -210,7 +211,7 @@ button {
   grid-area: top-mid;
 }
 
-#battleship {
+[data-ship="battleship"] {
   height: 12vw;
   width: 3.5vw;
 }
@@ -218,7 +219,7 @@ button {
   grid-area: right;
 }
 
-#carrier {
+[data-ship="carrier"] {
   height: 15vw;
   width: 3.5vw;
 }
@@ -247,16 +248,24 @@ button {
 .cell {
   flex: 1;
   aspect-ratio: 1;
-  background-color: rgba(33, 19, 140, 0.4);
+  background-color: rgba(33, 19, 140, 0.6);
   box-sizing: border-box; 
 }
 
 
 
 .good-drag {
-  background-color: rgba(59, 171, 3, 0.405);
+  background-color: rgba(59, 171, 3, 0.4);
+}
+.bad-drag {
+  background-color: rgba(214, 2, 2, 0.4);
 }
 
-.bad-drag {
-  background-color: rgba(214, 2, 2, 0.367);
+#player-wins,
+#computer-wins,
+#player-1-wins,
+#player-2-wins {
+  font-size: 5vw;
+  color: magenta;
+
 }

@@ -1,45 +1,17 @@
 /* eslint-disable no-console */
 /* eslint-disable class-methods-use-this */
-class GameController {
-  constructor({
-    playerBoard,
-    computerBoard,
-    playerFleet,
-    computerFleet,
-    gameState,
-    aiStrategy,
-    uiRenderer,
-    dragDropController,
-    eventBus,
-  }) {
+
+class PvPGame {
+  constructor(playerBoard, opponentBoard) {
     this.playerBoard = playerBoard;
-    this.computerBoard = computerBoard;
-    this.playerFleet = playerFleet;
-    this.computerFleet = computerFleet;
-    this.gameState = gameState;
-    this.aiStrategy = aiStrategy;
-    this.uiRenderer = uiRenderer;
-    this.dragDropController = dragDropController;
-    this.eventBus = eventBus;
+    this.opponentBoard = opponentBoard;
+
+    this.gamePhase = 'setup';
+    this.setUp();
   }
 
-  initializeGame() {
-    // randomly place computer ships
-    Object.values(this.computerFleet.ships).forEach((ship) => {
-      let placed = false;
-      while (!placed) {
-        try {
-          placed = this.computerFleet.placeShip(
-            ship.id,
-            this.getRandomX(),
-            this.getRandomY(),
-            this.getRandomOrientation()
-          );
-        } catch (err) {
-          // retry
-        }
-      }
-    });
+  setUp() {
+    document.querySelector('#opponent .cell');
   }
 
   handlePlayerGuess(x, y) {
@@ -138,4 +110,4 @@ class GameController {
 }
 
 // eslint-disable-next-line import/prefer-default-export
-export { GameController };
+export { PvPGame };

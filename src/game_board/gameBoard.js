@@ -1,8 +1,11 @@
+/* eslint-disable no-console */
 /* eslint-disable import/prefer-default-export */
 class GameBoard {
   width = 10;
 
   height = 10;
+
+  #placedCount = 0;
 
   constructor(id, ships) {
     this.id = id;
@@ -11,8 +14,40 @@ class GameBoard {
     this.guessHistory = new Set();
   }
 
-  #withinBounds = (x, y) =>
+  /**
+   * @param {number} value
+   */
+  set incrementPlacedCountBy(value) {
+    this.#placedCount += value;
+    if (this.#placedCount === 5) {
+      const placeElement = document.querySelector('.button-holder.place');
+      const playElement = document.querySelector('.button-holder.play');
+      if (this.id === 'player') {
+        placeElement.classList.toggle('hidden');
+        playElement.classList.toggle('hidden');
+      } else {
+        document.querySelector('.start-game').classList.remove('hidden');
+      }
+    }
+  }
+
+  /**
+   * @param {number} value
+   */
+  set decrementPlacedValueBy(value) {
+    this.#placedCount -= value;
+    document.querySelector('.button-holder.place').classList.remove('hidden');
+    if (this.id === 'player') {
+      document.querySelector('.button-holder.play').classList.add('hidden');
+    } else {
+      document.querySelector('.start-game').classList.add('hidden');
+    }
+  }
+
+  isWithinBounds = (x, y) =>
     x >= 0 && y >= 0 && x < this.width && y < this.height;
+
+  isOverlapping = (coord) => this.shipPositions.has(coord);
 
   isShipInBoundsAndNotOverlapping = (x, y, length, orientation) => {
     const occupied = this.getOccupiedCells(x, y, length, orientation);
@@ -20,11 +55,11 @@ class GameBoard {
     for (const coord of occupied) {
       const [cx, cy] = coord.split(',').map(Number);
 
-      if (!this.#withinBounds(cx, cy)) {
+      if (!this.isWithinBounds(cx, cy)) {
         return false;
       }
 
-      if (this.shipPositions.has(coord)) {
+      if (this.isOverlapping(coord)) {
         return false;
       }
     }
@@ -53,7 +88,7 @@ class GameBoard {
       const [xs, ys] = cell.split(',');
       const x = Number(xs);
       const y = Number(ys);
-      if (!this.#withinBounds(x, y)) return false;
+      if (!this.isWithinBounds(x, y)) return false;
     });
     cells.forEach((cell) => {
       this.shipPositions.set(cell, shipId);
@@ -64,46 +99,30 @@ class GameBoard {
 
   clearCells = (cells, shipId) => {
     cells.forEach((cell) => {
-      const [xs, ys] = cell.split(',');
-      const x = Number(xs);
-      const y = Number(ys);
-      if (!this.#withinBounds(x, y)) throw new Error('INVALID_COORDINATE');
       this.shipPositions.delete(cell, shipId);
     });
   };
 
-  getCellState = (coordinate) => {
-    const [xs, ys] = coordinate.split(',');
-    const x = Number(xs);
-    const y = Number(ys);
-    if (!this.#withinBounds(x, y)) throw new Error('INVALID_COORDINATE');
-    const guessed = this.guessHistory.has(coordinate);
-    const occupied = this.shipPositions.has(coordinate);
-    if (guessed) return occupied ? 'hit' : 'miss';
-    return occupied ? 'occupied' : 'empty';
-  };
-
   markGuess = (coordinate) => {
-    const [xs, ys] = coordinate.split(',');
-    const x = Number(xs);
-    const y = Number(ys);
-    if (!this.#withinBounds(x, y)) throw new Error('INVALID_COORDINATE');
-    if (this.guessHistory.has(coordinate))
-      throw new Error('CELL_ALREADY_GUESSED');
+    if (this.guessHistory.has(coordinate)) {
+      return false;
+    }
     this.guessHistory.add(coordinate);
+    return true;
   };
 
-  hasBeenGuessed = (coordinate) => {
-    const [xs, ys] = coordinate.split(',');
-    const x = Number(xs);
-    const y = Number(ys);
-    if (!this.#withinBounds(x, y)) throw new Error('INVALID_COORDINATE');
-    return this.guessHistory.has(coordinate);
-  };
+  isHitSuccessful(coordinate) {
+    return this.shipPositions.has(coordinate);
+  }
+
+  areAllShipsSunk() {
+    return Object.values(this.ships).every((s) => s.isSunk);
+  }
 
   reset = () => {
     this.shipPositions = new Map();
     this.guessHistory = new Set();
+    this.decrementPlacedValueBy = this.#placedCount;
     Object.values(this.ships).forEach((ship) => {
       ship.reset();
     });

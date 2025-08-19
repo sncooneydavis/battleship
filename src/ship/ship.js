@@ -37,15 +37,14 @@ class Ship {
   };
 
   recordHit = (coordinate) => {
-    if (!this.cellsOccupied.includes(coordinate)) {
-      throw new Error('coordinate is not part of this ship');
+    if (this.cellsOccupied.includes(coordinate)) {
+      this.hitCells.add(coordinate);
+      this.checkIfSunk();
     }
-    this.hitCells.add(coordinate);
-    this.checkIfSunk();
   };
 
   checkIfSunk = () => {
-    this.isSunk = this.hitCells.size === this.cellsOccupied.length;
+    this.isSunk = this.hitCells.size === this.length;
     return this.isSunk;
   };
 

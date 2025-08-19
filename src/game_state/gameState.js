@@ -21,7 +21,7 @@ class GameState {
     if (this.phase !== 'gameplay') throw new Error('INVALID_PHASE');
     if (!this.currentTurn) throw new Error('GAME_NOT_STARTED');
     const previousPlayer = this.currentTurn;
-    this.currentTurn = previousPlayer === 'player' ? 'computer' : 'player';
+    this.currentTurn = previousPlayer === 'player' ? 'opponent' : 'player';
     this.turnNumber += 1;
     this.eventBus('TURN_CHANGED', {
       previousPlayer,

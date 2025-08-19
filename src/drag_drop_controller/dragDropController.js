@@ -4,16 +4,15 @@
 class DragDropController {
   constructor(board) {
     this.board = board;
-
     this.dragState = null;
     this.boardElement = null;
     this.suppressClick = true;
   }
 
   setUp() {
-    const ships = document.querySelectorAll('.ship');
-    const cells = document.querySelectorAll('.cell');
-    this.boardElement = document.querySelector('.board');
+    const ships = document.querySelectorAll(`.${this.board.id}.ship`);
+    this.boardElement = document.getElementById(`${this.board.id}`);
+    const cells = this.boardElement.querySelectorAll('.cell');
 
     ships.forEach((shipElement) => {
       shipElement.addEventListener('dragstart', (e) => {
@@ -28,14 +27,8 @@ class DragDropController {
 
       // click to rotate if ship is placed on the board
       // and if ship's rotation will not place it off the board
-      shipElement.addEventListener('click', () => {
-        if (this.suppressClick) {
-          return;
-        }
-        const ship = this.board.ships[shipElement.id];
-        if (ship.position) {
-          this.rotateShip(shipElement, ship);
-        }
+      shipElement.addEventListener('click', (e) => {
+        this.rotateHandler(e);
       });
     });
 
@@ -61,6 +54,7 @@ class DragDropController {
           this.dragState.ship.id
         );
         this.snapShipInPlace();
+        this.board.incrementPlacedCountBy = 1;
       }
       this.dragState = null;
       this.removeAllHighlights();
@@ -85,7 +79,7 @@ class DragDropController {
     const cellSize = document.querySelector('.cell').offsetHeight;
     this.dragState = {
       shipElement,
-      ship: this.board.ships[shipElement.id],
+      ship: this.board.ships[shipElement.dataset.ship],
       cellSize,
       shipOffset: { x: clientOffset.x, y: clientOffset.y },
       isValidPosition: false,
@@ -196,6 +190,16 @@ class DragDropController {
     this.dragState.shipElement.style.position = 'absolute';
     this.dragState.shipElement.style.left = `${topLeftX + rect.left}px`;
     this.dragState.shipElement.style.top = `${topLeftY + rect.top}px`;
+  }
+
+  rotateHandler(e) {
+    if (this.suppressClick) {
+      return;
+    }
+    const ship = this.board.ships[e.target.dataset.ship];
+    if (ship.position) {
+      this.rotateShip(e.target, ship);
+    }
   }
 
   rotateShip(shipElement, ship) {

@@ -1,12 +1,32 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
+
+import { DragDropController } from '../drag_drop_controller/dragDropController.js';
+
 class UIRenderer {
-  constructor(board) {
-    this.board = board;
+  constructor(playerBoard, opponentBoard, onStartCallback) {
+    this.board = playerBoard;
+
+    this.playerBoard = playerBoard;
+    this.playerDragDropController = new DragDropController(playerBoard);
+    this.playerShipElements = null;
+
+    this.opponentBoard = opponentBoard;
+    this.opponentDragDropController = null;
+    this.opponentShipElements = null;
+
+    this.setUp();
+    this.onStartCallback = onStartCallback;
+    this.startGameListeners();
   }
 
   setUp() {
     this.renderBoard();
+    this.playerShipElements = document.querySelectorAll('.player.ship');
+    this.opponentShipElements = document.querySelectorAll('.opponent.ship');
+
+    this.playerDragDropController.setUp();
+
     const resetButton = document.getElementById('reset');
     resetButton.addEventListener('click', () => {
       this.reset();
@@ -15,36 +35,70 @@ class UIRenderer {
     const randomizeButton = document.getElementById('randomize');
     randomizeButton.addEventListener('click', () => {
       this.reset();
-      Object.values(this.board.ships).forEach((ship) => {
-        let placed = false;
-        let x;
-        let y;
-        let orient;
-        while (!placed) {
-          x = this.board.getRandomX();
-          y = this.board.getRandomY();
-          orient = this.board.getRandomOrientation();
-          const canOccupy = this.board.isShipInBoundsAndNotOverlapping(
-            x,
-            y,
-            ship.length,
-            orient
-          );
-          if (canOccupy) {
-            console.log('shipid', ship.id);
-            console.log('x,y', { x, y });
-            ship.orientation = orient;
-            this.board.markCellsOccupied(canOccupy, ship.id);
-            this.setRandomPlacement(
-              document.getElementById(`${ship.id}`),
-              document.querySelector(`[data-coordinate="${x},${y}"]`),
-              orient
-            );
-            placed = true;
-          }
-        }
-      });
+      this.randomizePlacement();
+      this.board.incrementPlacedCountBy = 5;
     });
+
+    // const opponentPlayerButton = document.getElementById('opponent-player');
+    // opponentPlayerButton.addEventListener('click', () => {
+    //   this.appendShipsToBoard();
+    //   document.getElementById('player').classList.add('hidden');
+    //   this.board = this.opponentBoard;
+    //   this.renderBoard();
+    //   this.opponentDragDropController = new DragDropController(this.board);
+    //   this.opponentDragDropController.setUp();
+
+    //   // reset screen for opponent
+    //   document.querySelector('.button-holder.place').classList.remove('hidden');
+    //   document.querySelector('.button-holder.play').classList.add('hidden');
+    //   this.playerShipElements.forEach((element) => {
+    //     element.classList.add('hidden');
+    //   });
+    //   this.opponentShipElements.forEach((element) => {
+    //     element.classList.remove('hidden');
+    //   });
+    // });
+  }
+
+  startGameListeners() {
+    // start PvC game
+    const computerPlayerButton = document.getElementById('opponent-computer');
+    computerPlayerButton.addEventListener('click', () => {
+      this.appendShipsToBoard();
+
+      this.opponentBoard.id = 'computer';
+      this.board = this.opponentBoard;
+      this.renderBoard();
+      this.randomizePlacement();
+      document.querySelector('.drag.section').classList.add('hidden');
+      const ships = document.querySelectorAll('.ship');
+      ships.forEach((ship) => {
+        ship.draggable = false;
+      });
+      this.startGame('computer');
+    });
+
+    // start PvP game
+    const playButton = document.querySelector('.start-game');
+    playButton.addEventListener('click', () => {
+      this.appendShipsToBoard();
+      document.querySelector('.drag.section').classList.add('hidden');
+      document.getElementById('player').classList.remove('hidden');
+      const ships = document.querySelectorAll('.ship');
+      ships.forEach((ship) => {
+        ship.draggable = false;
+        ship.classList.add('hidden');
+      });
+      this.startGame('opponent');
+    });
+  }
+
+  startGame(matchType) {
+    this.playerDragDropController.suppressClick = true;
+    if (matchType !== 'computer') {
+      this.opponentDragDropController.suppressClick = true;
+    }
+    this.onStartCallback(matchType);
   }
 
   renderBoard() {
@@ -59,20 +113,23 @@ class UIRenderer {
         const coord = `${x},${y}`;
         cell.className = 'cell';
         cell.dataset.coordinate = coord;
-        if (this.board.shipPositions.has(coord)) {
-          cell.classList.add('ship');
-        }
         row.appendChild(cell);
       }
       container.appendChild(row);
     }
     const mainContainer = document.getElementById('main-container');
-    mainContainer.prepend(container);
+    if (this.board.id === 'player') {
+      mainContainer.prepend(container);
+    } else {
+      mainContainer.append(container);
+    }
   }
 
   reset() {
     Object.values(this.board.ships).forEach((ship) => {
-      const shipElement = document.getElementById(ship.id);
+      const shipElement = document.querySelector(
+        `.${this.board.id}[data-ship="${ship.id}"]`
+      );
       shipElement.style.transform = 'rotate(0deg) translate(0,0)';
       shipElement.style.top = '';
       shipElement.style.left = '';
@@ -80,8 +137,46 @@ class UIRenderer {
     this.board.reset();
   }
 
+  randomizePlacement() {
+    Object.values(this.board.ships).forEach((ship) => {
+      let placed = false;
+      let x;
+      let y;
+      let orient;
+      while (!placed) {
+        x = this.board.getRandomX();
+        y = this.board.getRandomY();
+        orient = this.board.getRandomOrientation();
+        const canOccupy = this.board.isShipInBoundsAndNotOverlapping(
+          x,
+          y,
+          ship.length,
+          orient
+        );
+        if (canOccupy) {
+          ship.orientation = orient;
+          this.board.markCellsOccupied(canOccupy, ship.id);
+          if (this.board.id !== 'computer') {
+            this.setRandomPlacement(
+              document.querySelector(
+                `.${this.board.id}[data-ship="${ship.id}"]`
+              ),
+              document.querySelector(
+                `#${this.board.id} [data-coordinate="${x},${y}"]`
+              ),
+              orient
+            );
+          }
+          placed = true;
+        }
+      }
+    });
+  }
+
   setRandomPlacement(shipElement, cellElement, orientation) {
-    const boardRect = document.querySelector('.board').getBoundingClientRect();
+    const boardRect = document
+      .getElementById(this.board.id)
+      .getBoundingClientRect();
     const cellX = cellElement.offsetLeft;
     const cellY = cellElement.offsetTop;
 
@@ -96,50 +191,17 @@ class UIRenderer {
     }
   }
 
-  showHit(coordinate, boardId) {
-    return new Promise((resolve) => {
-      const cell = document
-        .getElementById(boardId)
-        .querySelector(`.cell[data-coordinate="${coordinate}"]`);
-      if (cell) cell.classList.add('hit');
-      this.eventBus.emit({
-        type: 'VISUAL_FEEDBACK',
-        feedbackType: 'HIT_EXPLOSION',
-        location: coordinate,
-        duration: 1000,
-        timestamp: Date.now(),
-      });
-      resolve();
+  appendShipsToBoard() {
+    const ships = document.querySelectorAll(`.${this.board.id}.ship`);
+    const board = document.getElementById(`${this.board.id}`);
+    ships.forEach((element) => {
+      board.appendChild(element);
+      const currentLeft = parseFloat(element.style.left) || 0;
+      const currentTop = parseFloat(element.style.top) || 0;
+      const rect = board.getBoundingClientRect();
+      element.style.left = `${currentLeft - rect.left}px`;
+      element.style.top = `${currentTop - rect.top}px`;
     });
-  }
-
-  showMiss(coordinate, boardId) {
-    return new Promise((resolve) => {
-      const cell = document
-        .getElementById(boardId)
-        .querySelector(`.cell[data-coordinate="${coordinate}"]`);
-      if (cell) cell.classList.add('miss');
-      this.eventBus.emit({
-        type: 'VISUAL_FEEDBACK',
-        feedbackType: 'MISS_SPLASH',
-        location: coordinate,
-        duration: 1000,
-        timestamp: Date.now(),
-      });
-      resolve();
-    });
-  }
-
-  toggleSetupUI(visible) {
-    const panel = document.getElementById('setup-panel');
-    if (!panel) return;
-    if (visible) panel.classList.remove('hidden');
-    else panel.classList.add('hidden');
-  }
-
-  showEndgame(winner) {
-    const messageEl = document.getElementById('message');
-    if (messageEl) messageEl.textContent = `${winner} wins!`;
   }
 }
 
